@@ -22,7 +22,6 @@ public class Hotel {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
     private String city;
 
     @Column(columnDefinition = "TEXT[]")
@@ -38,12 +37,9 @@ public class Hotel {
     private LocalDateTime updatedAt;
 
     @Embedded
-    private HotelContactInfo hotelContactInfo;
+    private HotelContactInfo contactInfo;
 
     @Column(nullable = false)
     private Boolean active;
-
-    @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY)
-    private List<Room> rooms;
 
 }
