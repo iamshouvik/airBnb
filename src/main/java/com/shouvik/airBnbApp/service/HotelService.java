@@ -1,0 +1,15 @@
+package com.shouvik.airBnbApp.service;
+
+import com.shouvik.airBnbApp.dto.HotelDto;
+import com.shouvik.airBnbApp.entity.Hotel;
+
+public interface HotelService {
+
+    HotelDto createNewHotel(HotelDto hotelDto);
+
+    HotelDto getHotelById(Long id);
+
+    HotelDto updateHotelById(Long id, HotelDto hotelDto);
+
+    void deleteHotelById(Long id);
+}
