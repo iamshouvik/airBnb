@@ -2,12 +2,15 @@ package com.shouvik.airBnbApp.service;
 
 import com.shouvik.airBnbApp.dto.HotelDto;
 import com.shouvik.airBnbApp.entity.Hotel;
+import com.shouvik.airBnbApp.entity.Room;
 import com.shouvik.airBnbApp.exception.ResourceNotFoundException;
 import com.shouvik.airBnbApp.repository.HotelRepository;
+import com.shouvik.airBnbApp.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -16,6 +19,8 @@ public class HotelServiceImpl implements HotelService{
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
+    private final InventoryService inventoryService;
+    private final RoomRepository roomRepository;
 
     @Override
     public HotelDto createNewHotel(HotelDto hotelDto) {
@@ -50,13 +55,31 @@ public class HotelServiceImpl implements HotelService{
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
-        boolean exists = hotelRepository.existsById(id);
-        if(!exists){
-            throw new ResourceNotFoundException("Hotel not found with ID: " + id);
-        }
+        Hotel hotel = hotelRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
         hotelRepository.deleteById(id);
+        for(Room room: hotel.getRooms()){
+            inventoryService.deleteAllInventories(room);
+            roomRepository.deleteById(room.getId());
+        }
+    }
 
-        //TODO: delete the future inventories for this hotel
+    @Override
+    @Transactional
+    public void activateHotel(Long hotelId) {
+        log.info("Activating the hotel with ID: {}", hotelId);
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + hotelId));
+        hotel.setActive(true);
+
+        // Assuming only do it once
+        for(Room room: hotel.getRooms()){
+            inventoryService.initializeRoomForAYear(room);
+        }
+
     }
 }
