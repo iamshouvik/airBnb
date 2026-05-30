@@ -22,6 +22,7 @@ public class HotelServiceImpl implements HotelService{
     private final InventoryService inventoryService;
     private final RoomRepository roomRepository;
 
+
     @Override
     public HotelDto createNewHotel(HotelDto hotelDto) {
         log.info("Creating a new hotel with name: {}", hotelDto.getName());
@@ -36,9 +37,7 @@ public class HotelServiceImpl implements HotelService{
     @Override
     public HotelDto getHotelById(Long id) {
         log.info("Getting the hotel with ID: {}", id);
-        Hotel hotel = hotelRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
+        Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + id));
         return modelMapper.map(hotel, HotelDto.class);
     }
 
